@@ -1,0 +1,88 @@
+name: vitest-testing
+version: 1.0.0
+description: Vitest test harness with sensible defaults
+author: workspace-recipes
+license: MIT
+tags:
+  - testing
+  - vitest
+  - typescript
+
+requires:
+  - bun-runtime|node-runtime
+
+conflicts:
+  - jest-testing
+
+suggests:
+  - typescript-strict
+
+variables:
+  coverage_threshold:
+    type: number
+    default: 80
+    description: Minimum coverage percentage
+
+  test_environment:
+    type: string
+    default: node
+    options:
+      - node
+      - jsdom
+      - happy-dom
+    description: Test environment
+
+generates:
+  - path: vitest.config.ts
+    template: templates/vitest.config.ts.hbs
+    overwrite: false
+
+  - path: src/__tests__/.gitkeep
+    content: ""
+
+  - path: src/__tests__/example.test.ts
+    content: |
+      import { describe, it, expect } from 'vitest';
+
+      describe('Example', () => {
+        it('should pass', () => {
+          expect(1 + 1).toBe(2);
+        });
+      });
+    overwrite: false
+
+  - path: package.json
+    merge:
+      scripts:
+        test: vitest run
+        test:watch: vitest
+        test:coverage: vitest run --coverage
+      devDependencies:
+        vitest: ^2.0.0
+        "@vitest/coverage-v8": ^2.0.0
+
+commands:
+  test:
+    run: vitest run
+    description: Run all tests once
+
+  test:watch:
+    run: vitest
+    description: Run tests in watch mode
+
+  test:coverage:
+    run: vitest run --coverage
+    description: Run tests with coverage report
+
+validates:
+  - check: file_exists
+    path: vitest.config.ts
+    message: vitest.config.ts is missing
+
+  - check: command_succeeds
+    command: bunx vitest --version
+    message: Vitest is not installed
+
+hooks:
+  post_apply:
+    - command: bun install

@@ -1,0 +1,28 @@
+name: agents-md
+version: 1.0.0
+description: Agent-friendly workspace documentation (AGENTS.md)
+author: workspace-recipes
+license: MIT
+tags:
+  - agents
+  - documentation
+  - ai
+
+variables:
+  filename:
+    type: string
+    default: AGENTS.md
+    options:
+      - AGENTS.md
+      - CLAUDE.md
+    description: Primary agent documentation filename
+
+generates:
+  - path: AGENTS.md
+    template: templates/AGENTS.md.hbs
+    overwrite: false
+
+validates:
+  - check: file_exists
+    path: AGENTS.md
+    message: AGENTS.md is missing

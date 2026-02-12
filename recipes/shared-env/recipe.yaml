@@ -1,0 +1,40 @@
+name: shared-env
+version: 1.0.0
+description: Shared .env template at workspace root (copied to worktrees)
+author: workspace-recipes
+license: MIT
+tags:
+  - config
+  - environment
+
+# This recipe applies to the workspace root, not individual worktrees
+scope: workspace
+
+generates:
+  - path: .env.example
+    content: |
+      # Shared environment template
+      # Copy to .env and fill in values
+      
+      NODE_ENV=development
+      
+      # API Keys
+      # OPENAI_API_KEY=
+      # ANTHROPIC_API_KEY=
+      
+      # Database
+      # DATABASE_URL=
+    overwrite: false
+
+  - path: .gitignore
+    append: |
+      
+      # Environment
+      .env
+      .env.local
+      .env.*.local
+
+validates:
+  - check: file_exists
+    path: .env.example
+    message: .env.example template is missing

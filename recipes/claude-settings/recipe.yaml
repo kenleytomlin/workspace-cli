@@ -1,0 +1,54 @@
+name: claude-settings
+version: 1.0.0
+description: Claude Code settings for worktree isolation
+author: workspace-recipes
+license: MIT
+tags:
+  - agents
+  - claude
+  - config
+
+# Worktree-scoped: each worktree gets its own settings
+scope: worktree
+
+generates:
+  - path: .claude/settings.local.json
+    template: templates/settings.local.json.hbs
+    overwrite: false
+
+  - path: CLAUDE.md
+    content: |
+      # Claude Code Instructions
+      
+      This is a workspace managed by `workspace` CLI.
+      
+      ## Worktree Isolation
+      
+      You are working in an isolated worktree. Changes here do not affect other worktrees until merged.
+      
+      ## Commands
+      
+      Run `workspace info` to see available commands.
+      Run `workspace validate` to check configuration.
+      
+      ## Branch
+      
+      Check your current branch: `git branch --show-current`
+      Your changes should be committed to this branch.
+    overwrite: false
+
+variables:
+  allow_write:
+    type: boolean
+    default: true
+    description: Allow write access to workspace
+
+  allow_shell:
+    type: boolean
+    default: true
+    description: Allow shell command execution
+
+validates:
+  - check: file_exists
+    path: .claude/settings.local.json
+    message: Claude settings not configured

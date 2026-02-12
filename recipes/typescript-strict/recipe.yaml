@@ -1,0 +1,61 @@
+name: typescript-strict
+version: 1.0.0
+description: TypeScript with strict mode enabled
+author: workspace-recipes
+license: MIT
+tags:
+  - typescript
+  - language
+
+requires:
+  - bun-runtime|node-runtime
+
+generates:
+  - path: tsconfig.json
+    content: |
+      {
+        "compilerOptions": {
+          "target": "ES2022",
+          "module": "ESNext",
+          "moduleResolution": "bundler",
+          "strict": true,
+          "skipLibCheck": true,
+          "noEmit": true,
+          "esModuleInterop": true,
+          "allowSyntheticDefaultImports": true,
+          "resolveJsonModule": true,
+          "isolatedModules": true,
+          "noUncheckedIndexedAccess": true,
+          "noImplicitOverride": true,
+          "exactOptionalPropertyTypes": true
+        },
+        "include": ["src/**/*"],
+        "exclude": ["node_modules", "dist"]
+      }
+    overwrite: false
+
+  - path: package.json
+    merge:
+      devDependencies:
+        typescript: ^5.4.0
+        "@types/bun": latest
+
+commands:
+  typecheck:
+    run: tsc --noEmit
+    description: Run TypeScript type checking
+
+validates:
+  - check: file_exists
+    path: tsconfig.json
+    message: tsconfig.json is missing
+
+  - check: json_field
+    path: tsconfig.json
+    field: compilerOptions.strict
+    equals: true
+    message: TypeScript strict mode is not enabled
+
+hooks:
+  post_apply:
+    - command: bun install

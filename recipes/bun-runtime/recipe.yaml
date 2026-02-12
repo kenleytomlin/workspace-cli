@@ -1,0 +1,65 @@
+name: bun-runtime
+version: 1.0.0
+description: Bun runtime with standard configuration
+author: workspace-recipes
+license: MIT
+tags:
+  - runtime
+  - javascript
+  - typescript
+  - bun
+
+conflicts:
+  - node-runtime
+  - deno-runtime
+
+generates:
+  - path: package.json
+    content: |
+      {
+        "name": "{{ project_name }}",
+        "type": "module",
+        "scripts": {
+          "dev": "bun run --watch src/index.ts",
+          "start": "bun run src/index.ts"
+        }
+      }
+    overwrite: false
+
+  - path: .gitignore
+    append: |
+
+      # Bun
+      bun.lockb
+      node_modules/
+
+  - path: src/index.ts
+    content: |
+      console.log("Hello from Bun!");
+    overwrite: false
+
+commands:
+  dev:
+    run: bun run --watch src/index.ts
+    description: Run in development mode with hot reload
+
+  start:
+    run: bun run src/index.ts
+    description: Run the application
+
+  install:
+    run: bun install
+    description: Install dependencies
+
+validates:
+  - check: command_succeeds
+    command: bun --version
+    message: Bun is not installed. Install from https://bun.sh
+
+  - check: file_exists
+    path: package.json
+    message: package.json is missing
+
+hooks:
+  post_apply:
+    - command: bun install

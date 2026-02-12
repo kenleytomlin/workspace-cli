@@ -1,0 +1,89 @@
+name: biome-linting
+version: 1.0.0
+description: Biome for fast linting and formatting
+author: workspace-recipes
+license: MIT
+tags:
+  - linting
+  - formatting
+  - biome
+
+requires:
+  - bun-runtime|node-runtime
+
+conflicts:
+  - eslint-linting
+  - prettier
+
+generates:
+  - path: biome.json
+    content: |
+      {
+        "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+        "organizeImports": {
+          "enabled": true
+        },
+        "linter": {
+          "enabled": true,
+          "rules": {
+            "recommended": true,
+            "complexity": {
+              "noForEach": "warn"
+            },
+            "style": {
+              "noNonNullAssertion": "warn",
+              "useConst": "error"
+            }
+          }
+        },
+        "formatter": {
+          "enabled": true,
+          "indentStyle": "space",
+          "indentWidth": 2
+        },
+        "javascript": {
+          "formatter": {
+            "quoteStyle": "single",
+            "semicolons": "always"
+          }
+        },
+        "files": {
+          "ignore": ["node_modules", "dist", "*.min.js"]
+        }
+      }
+    overwrite: false
+
+  - path: package.json
+    merge:
+      scripts:
+        lint: biome check .
+        lint:fix: biome check --write .
+        format: biome format --write .
+      devDependencies:
+        "@biomejs/biome": ^1.9.0
+
+commands:
+  lint:
+    run: biome check .
+    description: Check for lint errors
+
+  lint:fix:
+    run: biome check --write .
+    description: Fix lint errors automatically
+
+  format:
+    run: biome format --write .
+    description: Format all files
+
+validates:
+  - check: file_exists
+    path: biome.json
+    message: biome.json is missing
+
+  - check: command_succeeds
+    command: bunx biome --version
+    message: Biome is not installed
+
+hooks:
+  post_apply:
+    - command: bun install

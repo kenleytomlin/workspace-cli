@@ -1,0 +1,18 @@
+name: fullstack-ts
+version: 1.0.0
+description: Full TypeScript stack with Bun, Vitest, and Biome
+type: stack
+
+includes:
+  - bun-runtime
+  - typescript-strict
+  - vitest-testing
+  - biome-linting
+  - agents-md
+
+defaults:
+  vitest-testing:
+    coverage_threshold: 80
+    test_environment: node
+  agents-md:
+    filename: AGENTS.md

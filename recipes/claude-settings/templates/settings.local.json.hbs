@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(path:**)",
+      {{#if allow_write}}
+      "Edit(path:**)",
+      "Write(path:**)",
+      {{/if}}
+      {{#if allow_shell}}
+      "Bash(git:*)",
+      "Bash(bun:*)",
+      "Bash(npm:*)",
+      "Bash(node:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      {{/if}}
+      "WebSearch",
+      "WebFetch"
+    ]
+  }
+}

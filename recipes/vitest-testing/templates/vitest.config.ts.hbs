@@ -1,0 +1,25 @@
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    environment: '{{ test_environment }}',
+    include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    exclude: ['node_modules', 'dist'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/__tests__/',
+        '**/*.d.ts',
+        '**/*.config.*',
+      ],
+      thresholds: {
+        statements: {{ coverage_threshold }},
+        branches: {{ coverage_threshold }},
+        functions: {{ coverage_threshold }},
+        lines: {{ coverage_threshold }},
+      },
+    },
+  },
+});
