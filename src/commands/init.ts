@@ -3,7 +3,6 @@ import chalk from "chalk";
 import type { Context } from "../types";
 import { createWorkspaceConfig, saveWorkspaceConfig } from "../lib/config";
 import { loadStack, resolveRecipeDependencies } from "../lib/recipes";
-import { createClaudeSettings } from "../lib/claude";
 
 interface InitOptions extends Context {
   stack?: string;
@@ -155,9 +154,6 @@ workspace worktree list
 workspace validate
 \`\`\`
 `);
-
-  // Create Claude settings with permissive defaults
-  await createClaudeSettings(mainDir);
 
   // Commit the initial structure
   await Bun.spawn(["git", "add", "."], { cwd: mainDir }).exited;
