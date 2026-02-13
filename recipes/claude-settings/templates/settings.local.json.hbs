@@ -6,13 +6,16 @@
       "Edit(path:**)",
       "Write(path:**)",
       {{/if}}
+      "Glob(path:**)",
       {{#if allow_shell}}
-      "Bash(git:*)",
-      "Bash(bun:*)",
-      "Bash(npm:*)",
-      "Bash(node:*)",
+      "Bash(grep:*)",
+      "Bash(wc:*)",
       "Bash(ls:*)",
       "Bash(cat:*)",
+      "Bash(git:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(echo:*)",
       "Bash(mkdir:*)",
       {{/if}}
       "WebSearch",

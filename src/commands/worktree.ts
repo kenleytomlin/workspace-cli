@@ -94,34 +94,6 @@ async function worktreeAdd(name: string | undefined, options: WorktreeOptions): 
     await Bun.write(join(wtPath, ".env"), await Bun.file(envPath).text());
   }
 
-  // Generate .claude/settings.local.json
-  const claudeDir = join(wtPath, ".claude");
-  await Bun.spawn(["mkdir", "-p", claudeDir]).exited;
-
-  const claudeSettings = {
-    permissions: {
-      allow: [
-        `Read(path:${root}/**)`,
-        `Edit(path:${root}/**)`,
-        `Write(path:${root}/**)`,
-        "Bash(git:*)",
-        "Bash(bun:*)",
-        "Bash(npm:*)",
-        "Bash(node:*)",
-        "Bash(ls:*)",
-        "Bash(cat:*)",
-        "Bash(mkdir:*)",
-        "WebSearch",
-        "WebFetch",
-      ],
-    },
-  };
-
-  await Bun.write(
-    join(claudeDir, "settings.local.json"),
-    JSON.stringify(claudeSettings, null, 2)
-  );
-
   // Install dependencies unless --no-deps
   if (!options.noDeps) {
     console.log(chalk.dim("  Installing dependencies..."));

@@ -3,7 +3,6 @@ import chalk from "chalk";
 import type { Context } from "../types";
 import { createWorkspaceConfig, saveWorkspaceConfig } from "../lib/config";
 import { resolveRecipeDependencies } from "../lib/recipes";
-import { createClaudeSettings } from "../lib/claude";
 
 interface CloneOptions extends Context {
   recipes?: string;
@@ -140,11 +139,8 @@ export async function clone(url: string | undefined, nameOrOptions?: string | Cl
 
   await saveWorkspaceConfig(projectPath, config);
 
-  // Create Claude settings in main worktree
-  const mainDir = join(projectPath, "main");
-  await createClaudeSettings(mainDir);
-
   // Summary
+  const mainDir = join(projectPath, "main");
   console.log();
   console.log(chalk.green("✓") + ` Repository cloned: ${chalk.bold(projectPath)}`);
   console.log();
