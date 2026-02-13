@@ -185,7 +185,9 @@ describe("CLI Integration", () => {
       await runCli(["init", "wt-list"], tempDir);
       const projectDir = join(tempDir, "wt-list");
       
-      const result = await runCli(["worktree", "list"], projectDir);
+      // Need to run from inside a worktree for git to work properly
+      const mainDir = join(projectDir, "main");
+      const result = await runCli(["worktree", "list"], mainDir);
       expect(result.code).toBe(0);
       expect(result.stdout).toContain("main");
     });

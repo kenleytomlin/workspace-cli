@@ -220,9 +220,12 @@ async function worktreeList(options: WorktreeOptions): Promise<void> {
   console.log(chalk.bold("Worktrees:"));
   console.log();
 
+  // Run from main/ worktree to ensure git context works
+  // (bare repo root needs explicit GIT_DIR or must run from worktree)
+  const mainDir = join(root, "main");
   const proc = Bun.spawn(
     ["git", "worktree", "list", "--porcelain"],
-    { cwd: root, stdout: "pipe" }
+    { cwd: mainDir, stdout: "pipe", stderr: "pipe" }
   );
 
   const output = await new Response(proc.stdout).text();
