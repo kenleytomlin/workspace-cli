@@ -9,7 +9,7 @@ Composable, shareable workspace recipes. Like Heroku buildpacks, but for reposit
 ### Homebrew (macOS/Linux)
 
 ```bash
-brew tap kenleytomlin/tap
+brew tap kenleytomlin/workspace-cli https://github.com/kenleytomlin/workspace-cli
 brew install workspace
 ```
 

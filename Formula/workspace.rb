@@ -1,5 +1,5 @@
 # Homebrew formula for workspace-cli
-# Install: brew install kenleytomlin/tap/workspace
+# Install: brew tap kenleytomlin/workspace-cli https://github.com/kenleytomlin/workspace-cli && brew install workspace
 
 class Workspace < Formula
   desc "Buildpacks for agent-friendly git repos"
