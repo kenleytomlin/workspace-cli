@@ -99,3 +99,26 @@ jobs:
             dist/workspace-darwin-x64.tar.gz
             dist/checksums.txt
           generate_release_notes: true
+
+      - name: Update Homebrew formula
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          ARM64_SHA=$(shasum -a 256 dist/workspace-darwin-arm64.tar.gz | awk '{print $1}')
+          X64_SHA=$(shasum -a 256 dist/workspace-darwin-x64.tar.gz | awk '{print $1}')
+          LINUX_SHA=$(shasum -a 256 dist/workspace-linux-x64.tar.gz | awk '{print $1}')
+
+          # Update version
+          sed -i "s/version \".*\"/version \"$VERSION\"/" Formula/workspace.rb
+
+          # Update SHA256 hashes by matching the url line above each sha256
+          sed -i "/darwin-arm64\.tar\.gz/{n;s/sha256 \".*\"/sha256 \"$ARM64_SHA\"/}" Formula/workspace.rb
+          sed -i "/darwin-x64\.tar\.gz/{n;s/sha256 \".*\"/sha256 \"$X64_SHA\"/}" Formula/workspace.rb
+          sed -i "/linux-x64\.tar\.gz/{n;s/sha256 \".*\"/sha256 \"$LINUX_SHA\"/}" Formula/workspace.rb
+
+          cat Formula/workspace.rb
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/workspace.rb
+          git commit -m "chore: update Homebrew formula for v${VERSION}"
+          git push origin HEAD:main
