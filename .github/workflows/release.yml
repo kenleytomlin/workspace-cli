@@ -60,11 +60,26 @@ jobs:
       - name: Prepare release assets
         run: |
           cd dist
+          ls -la
+          ls -la */
+          
           # Move artifacts out of subdirectories
-          mv workspace-linux-x64/workspace-linux-x64 ./workspace-linux-x64
-          mv workspace-darwin-arm64/workspace-darwin-arm64 ./workspace-darwin-arm64
-          mv workspace-darwin-x64/workspace-darwin-x64 ./workspace-darwin-x64
-          rm -rf workspace-linux-x64/ workspace-darwin-arm64/ workspace-darwin-x64/
+          for dir in workspace-*/; do
+            artifact_name="${dir%/}"
+            if [ -f "$dir/$artifact_name" ]; then
+              mv "$dir/$artifact_name" "./${artifact_name}-bin"
+            fi
+          done
+          
+          # Clean up empty dirs
+          rm -rf workspace-*/
+          
+          # Rename binaries
+          for f in *-bin; do
+            mv "$f" "${f%-bin}"
+          done
+          
+          ls -la
           
           # Create archives
           tar -czvf workspace-linux-x64.tar.gz workspace-linux-x64
