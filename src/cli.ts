@@ -14,7 +14,7 @@ import { worktree } from "./commands/worktree";
 import { info } from "./commands/info";
 import { test } from "./commands/test";
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 
 const HELP = `
 ${chalk.bold("workspace")} — Buildpacks for agent-friendly git repos
