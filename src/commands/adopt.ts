@@ -3,6 +3,7 @@ import chalk from "chalk";
 import type { Context } from "../types";
 import { createWorkspaceConfig, saveWorkspaceConfig } from "../lib/config";
 import { resolveRecipeDependencies } from "../lib/recipes";
+import { createClaudeSettings } from "../lib/claude";
 
 interface AdoptOptions extends Context {
   recipes?: string;
@@ -169,6 +170,9 @@ export async function adopt(options: AdoptOptions): Promise<void> {
   }
 
   await saveWorkspaceConfig(repoDir, config);
+
+  // Create Claude settings in main worktree
+  await createClaudeSettings(mainDir);
 
   // Summary
   console.log();
