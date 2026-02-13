@@ -103,6 +103,8 @@ async function worktreeAdd(name: string | undefined, options: WorktreeOptions): 
       allow: [
         `Read(path:${root}/**)`,
         `Edit(path:${root}/**)`,
+        `Write(path:${root}/**)`,
+        `Glob(path:${root}/**)`,
         "Bash(grep:*)",
         "Bash(wc:*)",
         "Bash(ls:*)",

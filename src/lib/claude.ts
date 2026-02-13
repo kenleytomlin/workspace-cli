@@ -8,9 +8,11 @@ import { join } from "path";
 const CLAUDE_SETTINGS = {
   permissions: {
     allow: [
-      // File operations (read + edit, no blanket write)
+      // File operations
       "Read(*)",
       "Edit(*)",
+      "Write(*)",
+      "Glob(*)",
       // Scoped shell commands
       "Bash(grep:*)",
       "Bash(wc:*)",
