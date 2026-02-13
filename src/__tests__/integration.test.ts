@@ -202,3 +202,153 @@ async function dirExists(path: string): Promise<boolean> {
   const proc = Bun.spawn(["test", "-d", path]);
   return (await proc.exited) === 0;
 }
+
+describe("workspace clone", () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = join(tmpdir(), `workspace-clone-${Date.now()}`);
+    await Bun.spawn(["mkdir", "-p", tempDir]).exited;
+  });
+
+  afterEach(async () => {
+    await Bun.spawn(["rm", "-rf", tempDir]).exited;
+  });
+
+  it("clones a remote repo with workspace structure", async () => {
+    // Use a small public repo for testing
+    const result = await runCli(
+      ["clone", "https://github.com/octocat/Hello-World.git"],
+      tempDir
+    );
+    expect(result.code).toBe(0);
+
+    const projectDir = join(tempDir, "Hello-World");
+
+    // Check workspace structure
+    expect(await dirExists(join(projectDir, ".bare"))).toBe(true);
+    expect(await Bun.file(join(projectDir, ".git")).exists()).toBe(true);
+    expect(await dirExists(join(projectDir, ".workspace"))).toBe(true);
+    expect(await dirExists(join(projectDir, "main"))).toBe(true);
+
+    // Check config was created
+    const configPath = join(projectDir, ".workspace", "config.yaml");
+    expect(await Bun.file(configPath).exists()).toBe(true);
+    const content = await Bun.file(configPath).text();
+    expect(content).toContain("name: Hello-World");
+  });
+
+  it("clones with custom name", async () => {
+    const result = await runCli(
+      ["clone", "https://github.com/octocat/Hello-World.git", "my-hello"],
+      tempDir
+    );
+    expect(result.code).toBe(0);
+
+    expect(await dirExists(join(tempDir, "my-hello"))).toBe(true);
+    expect(await dirExists(join(tempDir, "my-hello", "main"))).toBe(true);
+  });
+
+  it("queues recipes when using --recipes", async () => {
+    const result = await runCli(
+      ["clone", "https://github.com/octocat/Hello-World.git", "--recipes", "agents-md"],
+      tempDir
+    );
+    expect(result.code).toBe(0);
+
+    const configPath = join(tempDir, "Hello-World", ".workspace", "config.yaml");
+    const content = await Bun.file(configPath).text();
+    expect(content).toContain("pending:");
+    expect(content).toContain("agents-md");
+  });
+});
+
+describe("workspace adopt", () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = join(tmpdir(), `workspace-adopt-${Date.now()}`);
+    await Bun.spawn(["mkdir", "-p", tempDir]).exited;
+  });
+
+  afterEach(async () => {
+    await Bun.spawn(["rm", "-rf", tempDir]).exited;
+  });
+
+  it("converts existing repo to workspace structure", async () => {
+    // Create a normal git repo first
+    const repoDir = join(tempDir, "existing-repo");
+    await Bun.spawn(["mkdir", "-p", repoDir]).exited;
+    await Bun.spawn(["git", "init"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.email", "test@test.com"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.name", "Test"], { cwd: repoDir }).exited;
+    
+    // Create a file and commit
+    await Bun.write(join(repoDir, "README.md"), "# Existing Project");
+    await Bun.spawn(["git", "add", "-A"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "commit", "-m", "initial"], { cwd: repoDir }).exited;
+
+    // Run adopt from inside the repo
+    const result = await runCli(["adopt"], repoDir);
+    expect(result.code).toBe(0);
+
+    // After adopt, the structure should be transformed
+    // repoDir should now be a workspace root with main/ worktree
+    expect(await dirExists(join(repoDir, ".bare"))).toBe(true);
+    expect(await Bun.file(join(repoDir, ".git")).exists()).toBe(true);
+    expect(await dirExists(join(repoDir, ".workspace"))).toBe(true);
+    expect(await dirExists(join(repoDir, "main"))).toBe(true);
+
+    // Original file should be in main/
+    expect(await Bun.file(join(repoDir, "main", "README.md")).exists()).toBe(true);
+    const content = await Bun.file(join(repoDir, "main", "README.md")).text();
+    expect(content).toContain("Existing Project");
+  });
+
+  it("adds recipes during adopt", async () => {
+    const repoDir = join(tempDir, "adopt-recipes");
+    await Bun.spawn(["mkdir", "-p", repoDir]).exited;
+    await Bun.spawn(["git", "init"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.email", "test@test.com"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.name", "Test"], { cwd: repoDir }).exited;
+    await Bun.write(join(repoDir, "index.ts"), "console.log('hello')");
+    await Bun.spawn(["git", "add", "-A"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "commit", "-m", "initial"], { cwd: repoDir }).exited;
+
+    const result = await runCli(["adopt", "--recipes", "agents-md,bun-runtime"], repoDir);
+    expect(result.code).toBe(0);
+
+    const configPath = join(repoDir, ".workspace", "config.yaml");
+    const content = await Bun.file(configPath).text();
+    expect(content).toContain("pending:");
+    expect(content).toContain("agents-md");
+    expect(content).toContain("bun-runtime");
+  });
+
+  it("fails on non-git directory", async () => {
+    const nonGitDir = join(tempDir, "not-a-repo");
+    await Bun.spawn(["mkdir", "-p", nonGitDir]).exited;
+
+    const result = await runCli(["adopt"], nonGitDir);
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain("not a git repository");
+  });
+
+  it("fails on uncommitted changes", async () => {
+    const repoDir = join(tempDir, "dirty-repo");
+    await Bun.spawn(["mkdir", "-p", repoDir]).exited;
+    await Bun.spawn(["git", "init"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.email", "test@test.com"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.name", "Test"], { cwd: repoDir }).exited;
+    await Bun.write(join(repoDir, "README.md"), "# Test");
+    await Bun.spawn(["git", "add", "-A"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "commit", "-m", "initial"], { cwd: repoDir }).exited;
+    
+    // Create uncommitted changes
+    await Bun.write(join(repoDir, "dirty.txt"), "uncommitted");
+
+    const result = await runCli(["adopt"], repoDir);
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain("uncommitted changes");
+  });
+});
