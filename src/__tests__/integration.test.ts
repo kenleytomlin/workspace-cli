@@ -70,6 +70,22 @@ describe("CLI Integration", () => {
       expect(content).toContain("pending:");
       expect(content).toContain("bun-runtime");
     });
+
+    it("creates Claude settings in main worktree", async () => {
+      await runCli(["init", "claude-test"], tempDir);
+      const projectDir = join(tempDir, "claude-test");
+      
+      // Check .claude/settings.local.json exists in main/
+      const settingsPath = join(projectDir, "main", ".claude", "settings.local.json");
+      expect(await Bun.file(settingsPath).exists()).toBe(true);
+      
+      const content = await Bun.file(settingsPath).text();
+      const settings = JSON.parse(content);
+      
+      // Should have permissive defaults
+      expect(settings.permissions).toBeDefined();
+      expect(settings.permissions.allow).toContain("Bash(*)");
+    });
   });
 
   describe("workspace add", () => {
@@ -261,6 +277,21 @@ describe("workspace clone", () => {
     expect(content).toContain("pending:");
     expect(content).toContain("agents-md");
   });
+
+  it("creates Claude settings in main worktree", async () => {
+    const result = await runCli(
+      ["clone", "https://github.com/octocat/Hello-World.git"],
+      tempDir
+    );
+    expect(result.code).toBe(0);
+
+    const settingsPath = join(tempDir, "Hello-World", "main", ".claude", "settings.local.json");
+    expect(await Bun.file(settingsPath).exists()).toBe(true);
+    
+    const content = await Bun.file(settingsPath).text();
+    const settings = JSON.parse(content);
+    expect(settings.permissions.allow).toContain("Bash(*)");
+  });
 });
 
 describe("workspace adopt", () => {
@@ -332,6 +363,27 @@ describe("workspace adopt", () => {
     const result = await runCli(["adopt"], nonGitDir);
     expect(result.code).toBe(1);
     expect(result.stderr).toContain("not a git repository");
+  });
+
+  it("creates Claude settings in main worktree", async () => {
+    const repoDir = join(tempDir, "adopt-claude");
+    await Bun.spawn(["mkdir", "-p", repoDir]).exited;
+    await Bun.spawn(["git", "init"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.email", "test@test.com"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.name", "Test"], { cwd: repoDir }).exited;
+    await Bun.write(join(repoDir, "README.md"), "# Test");
+    await Bun.spawn(["git", "add", "-A"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "commit", "-m", "initial"], { cwd: repoDir }).exited;
+
+    const result = await runCli(["adopt"], repoDir);
+    expect(result.code).toBe(0);
+
+    const settingsPath = join(repoDir, "main", ".claude", "settings.local.json");
+    expect(await Bun.file(settingsPath).exists()).toBe(true);
+    
+    const content = await Bun.file(settingsPath).text();
+    const settings = JSON.parse(content);
+    expect(settings.permissions.allow).toContain("Bash(*)");
   });
 
   it("fails on uncommitted changes", async () => {
