@@ -59,3 +59,30 @@ validates:
 hooks:
   post_apply:
     - command: bun install
+
+tests:
+  - name: creates tsconfig.json
+    assert_file_exists: tsconfig.json
+
+  - name: strict mode enabled
+    assert_json_field:
+      path: tsconfig.json
+      field: compilerOptions.strict
+      equals: true
+
+  - name: noUncheckedIndexedAccess enabled
+    assert_json_field:
+      path: tsconfig.json
+      field: compilerOptions.noUncheckedIndexedAccess
+      equals: true
+
+  - name: target is ES2022
+    assert_json_field:
+      path: tsconfig.json
+      field: compilerOptions.target
+      equals: "ES2022"
+
+  - name: typescript added to devDependencies
+    assert_file_contains:
+      path: package.json
+      contains: "typescript"

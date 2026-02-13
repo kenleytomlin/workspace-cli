@@ -26,3 +26,22 @@ validates:
   - check: file_exists
     path: AGENTS.md
     message: AGENTS.md is missing
+
+tests:
+  - name: creates AGENTS.md
+    assert_file_exists: AGENTS.md
+
+  - name: has quick start section
+    assert_file_contains:
+      path: AGENTS.md
+      contains: "## Quick Start"
+
+  - name: has workspace commands section
+    assert_file_contains:
+      path: AGENTS.md
+      contains: "## Workspace Commands"
+
+  - name: mentions workspace validate
+    assert_file_contains:
+      path: AGENTS.md
+      contains: "workspace validate"

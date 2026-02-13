@@ -38,3 +38,22 @@ validates:
   - check: file_exists
     path: .env.example
     message: .env.example template is missing
+
+tests:
+  - name: creates .env.example
+    assert_file_exists: .env.example
+
+  - name: has NODE_ENV placeholder
+    assert_file_contains:
+      path: .env.example
+      contains: "NODE_ENV="
+
+  - name: has API key placeholders
+    assert_file_contains:
+      path: .env.example
+      contains: "API_KEY"
+
+  - name: gitignore excludes .env
+    assert_file_contains:
+      path: .gitignore
+      contains: ".env"

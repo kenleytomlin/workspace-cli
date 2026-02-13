@@ -87,3 +87,34 @@ validates:
 hooks:
   post_apply:
     - command: bun install
+
+tests:
+  - name: creates biome.json
+    assert_file_exists: biome.json
+
+  - name: linter enabled
+    assert_file_contains:
+      path: biome.json
+      contains: '"enabled": true'
+
+  - name: formatter uses spaces
+    assert_file_contains:
+      path: biome.json
+      contains: '"indentStyle": "space"'
+
+  - name: package.json has lint script
+    assert_json_field:
+      path: package.json
+      field: scripts.lint
+      equals: "biome check ."
+
+  - name: package.json has format script
+    assert_json_field:
+      path: package.json
+      field: scripts.format
+      equals: "biome format --write ."
+
+  - name: biome added to devDependencies
+    assert_file_contains:
+      path: package.json
+      contains: "@biomejs/biome"

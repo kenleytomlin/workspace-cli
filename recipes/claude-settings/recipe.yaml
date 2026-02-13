@@ -52,3 +52,25 @@ validates:
   - check: file_exists
     path: .claude/settings.local.json
     message: Claude settings not configured
+
+tests:
+  - name: creates .claude directory
+    assert_file_exists: .claude/settings.local.json
+
+  - name: creates CLAUDE.md
+    assert_file_exists: CLAUDE.md
+
+  - name: settings has permissions
+    assert_file_contains:
+      path: .claude/settings.local.json
+      contains: "permissions"
+
+  - name: settings allows read
+    assert_file_contains:
+      path: .claude/settings.local.json
+      contains: "Read"
+
+  - name: CLAUDE.md mentions worktree
+    assert_file_contains:
+      path: CLAUDE.md
+      contains: "worktree"
