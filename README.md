@@ -6,23 +6,40 @@ Composable, shareable workspace recipes. Like Heroku buildpacks, but for reposit
 
 ## Install
 
+### Homebrew (macOS/Linux)
+
 ```bash
-# From source (recommended for now)
-git clone https://github.com/agent-workspace/cli.git
-cd cli
-bun install
-bun run build
-
-# Copy binary to PATH
-cp dist/workspace /usr/local/bin/
-
-# Copy recipes to user location
-cp -r recipes ~/.workspace/
+brew tap kenleytomlin/tap
+brew install workspace
 ```
 
-Or run directly from source:
+### Direct Download
+
+Download the latest binary from [Releases](https://github.com/kenleytomlin/workspace-cli/releases):
+
 ```bash
-bun /path/to/cli/src/cli.ts init my-project
+# macOS (Apple Silicon)
+curl -L https://github.com/kenleytomlin/workspace-cli/releases/latest/download/workspace-darwin-arm64.tar.gz | tar xz
+mv workspace-darwin-arm64 /usr/local/bin/workspace
+
+# macOS (Intel)
+curl -L https://github.com/kenleytomlin/workspace-cli/releases/latest/download/workspace-darwin-x64.tar.gz | tar xz
+mv workspace-darwin-x64 /usr/local/bin/workspace
+
+# Linux
+curl -L https://github.com/kenleytomlin/workspace-cli/releases/latest/download/workspace-linux-x64.tar.gz | tar xz
+mv workspace-linux-x64 /usr/local/bin/workspace
+```
+
+### From Source
+
+```bash
+git clone https://github.com/kenleytomlin/workspace-cli.git
+cd workspace-cli
+bun install
+bun run build
+cp dist/workspace /usr/local/bin/
+cp -r recipes ~/.workspace/
 ```
 
 ## Quick Start
