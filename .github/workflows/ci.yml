@@ -17,10 +17,16 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-      
+
+      - name: Configure git for tests
+        run: |
+          git config --global user.name "Test"
+          git config --global user.email "test@test.com"
+          git config --global init.defaultBranch main
+
       - name: Install dependencies
         run: bun install
-      
+
       - name: Run unit tests
         run: bun test
       

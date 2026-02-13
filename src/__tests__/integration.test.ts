@@ -172,8 +172,6 @@ describe("CLI Integration", () => {
       
       // Commit in main
       const mainDir = join(projectDir, "main");
-      await Bun.spawn(["git", "config", "user.email", "test@test.com"], { cwd: mainDir }).exited;
-      await Bun.spawn(["git", "config", "user.name", "Test"], { cwd: mainDir }).exited;
       await Bun.spawn(["git", "add", "-A"], { cwd: mainDir }).exited;
       await Bun.spawn(["git", "commit", "-m", "initial"], { cwd: mainDir }).exited;
       
