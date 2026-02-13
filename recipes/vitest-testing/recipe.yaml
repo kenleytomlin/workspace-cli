@@ -86,3 +86,36 @@ validates:
 hooks:
   post_apply:
     - command: bun install
+
+# Recipe author tests - run with: workspace test vitest-testing
+tests:
+  - name: creates vitest.config.ts
+    assert_file_exists: vitest.config.ts
+
+  - name: creates test directory
+    assert_file_exists: src/__tests__/.gitkeep
+
+  - name: creates example test
+    assert_file_exists: src/__tests__/example.test.ts
+
+  - name: example test has describe block
+    assert_file_contains:
+      path: src/__tests__/example.test.ts
+      contains: "describe('Example'"
+
+  - name: package.json has test script
+    assert_json_field:
+      path: package.json
+      field: scripts.test
+      equals: "vitest run"
+
+  - name: package.json has vitest dependency
+    assert_json_field:
+      path: package.json
+      field: devDependencies.vitest
+      contains: "^2"
+
+  - name: vitest config has coverage thresholds
+    assert_file_contains:
+      path: vitest.config.ts
+      contains: "thresholds"

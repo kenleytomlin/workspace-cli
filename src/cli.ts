@@ -10,6 +10,7 @@ import { validate } from "./commands/validate";
 import { list } from "./commands/list";
 import { worktree } from "./commands/worktree";
 import { info } from "./commands/info";
+import { test } from "./commands/test";
 
 const VERSION = "0.1.0";
 
@@ -26,6 +27,7 @@ ${chalk.dim("Commands:")}
   ${chalk.cyan("validate")}                         Validate workspace configuration
   ${chalk.cyan("list")}                             List installed recipes
   ${chalk.cyan("info")}                             Show workspace info & commands
+  ${chalk.cyan("test")} <recipe>                    Run recipe's test suite
   
   ${chalk.cyan("worktree")} add <name> [--base <branch>]
   ${chalk.cyan("worktree")} remove <name>
@@ -104,6 +106,10 @@ async function main() {
 
       case "info":
         await info(ctx);
+        break;
+
+      case "test":
+        await test(rest[0], ctx);
         break;
 
       case "worktree":

@@ -63,3 +63,27 @@ validates:
 hooks:
   post_apply:
     - command: bun install
+
+# Recipe author tests
+tests:
+  - name: creates package.json
+    assert_file_exists: package.json
+
+  - name: package.json has correct type
+    assert_json_field:
+      path: package.json
+      field: type
+      equals: "module"
+
+  - name: creates src/index.ts
+    assert_file_exists: src/index.ts
+
+  - name: index.ts has hello message
+    assert_file_contains:
+      path: src/index.ts
+      contains: "Hello from Bun"
+
+  - name: gitignore includes node_modules
+    assert_file_contains:
+      path: .gitignore
+      contains: "node_modules/"
