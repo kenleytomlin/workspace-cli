@@ -1,0 +1,65 @@
+name: fixture-variables
+version: 1.0.0
+description: Tests variable substitution in content
+
+variables:
+  greeting:
+    type: string
+    default: Hello
+    description: Greeting message
+    
+  count:
+    type: number
+    default: 42
+    description: A number
+    
+  enabled:
+    type: boolean
+    default: true
+    description: Feature flag
+    
+  environment:
+    type: string
+    default: development
+    options:
+      - development
+      - staging
+      - production
+
+generates:
+  - path: output.txt
+    content: |
+      {{ greeting }}, World!
+      Count: {{ count }}
+      Enabled: {{ enabled }}
+      Environment: {{ environment }}
+      Project: {{ project_name }}
+
+tests:
+  - name: output.txt exists
+    assert_file_exists: output.txt
+
+  - name: has greeting
+    assert_file_contains:
+      path: output.txt
+      contains: "Hello, World!"
+
+  - name: has count
+    assert_file_contains:
+      path: output.txt
+      contains: "Count: 42"
+
+  - name: has enabled
+    assert_file_contains:
+      path: output.txt
+      contains: "Enabled: true"
+
+  - name: has environment
+    assert_file_contains:
+      path: output.txt
+      contains: "Environment: development"
+
+  - name: has project name
+    assert_file_contains:
+      path: output.txt
+      contains: "Project: test-workspace"

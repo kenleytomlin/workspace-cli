@@ -1,0 +1,39 @@
+name: fixture-conditionals
+version: 1.0.0
+description: Tests conditional generation (when clauses)
+
+generates:
+  # Always create this marker file
+  - path: marker.txt
+    content: "marker"
+
+  # Only create if marker exists
+  - path: conditional-exists.txt
+    content: "Created because marker.txt exists"
+    when:
+      file_exists: marker.txt
+
+  # Only create if missing.txt does NOT exist
+  - path: conditional-not-exists.txt
+    content: "Created because missing.txt does not exist"
+    when:
+      file_not_exists: missing.txt
+
+  # Should NOT be created (condition fails)
+  - path: should-not-exist.txt
+    content: "This should not be created"
+    when:
+      file_exists: nonexistent-file.txt
+
+tests:
+  - name: marker.txt exists
+    assert_file_exists: marker.txt
+
+  - name: conditional-exists.txt created (file_exists condition met)
+    assert_file_exists: conditional-exists.txt
+
+  - name: conditional-not-exists.txt created (file_not_exists condition met)
+    assert_file_exists: conditional-not-exists.txt
+
+  - name: should-not-exist.txt NOT created (condition failed)
+    assert_file_not_exists: should-not-exist.txt

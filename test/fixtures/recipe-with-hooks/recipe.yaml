@@ -1,0 +1,33 @@
+name: fixture-hooks
+version: 1.0.0
+description: Tests pre and post apply hooks
+
+generates:
+  - path: main.txt
+    content: "Main content"
+
+hooks:
+  pre_apply:
+    - command: echo "pre-apply" > pre.txt
+    
+  post_apply:
+    - command: echo "post-apply" > post.txt
+    - command: cat main.txt pre.txt > combined.txt
+
+tests:
+  - name: main.txt created by generates
+    assert_file_exists: main.txt
+
+  - name: pre.txt created by pre_apply hook
+    assert_file_exists: pre.txt
+
+  - name: pre.txt has correct content
+    assert_file_contains:
+      path: pre.txt
+      contains: "pre-apply"
+
+  - name: post.txt created by post_apply hook
+    assert_file_exists: post.txt
+
+  - name: combined.txt created by hook chain
+    assert_file_exists: combined.txt

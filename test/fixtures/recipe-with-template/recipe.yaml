@@ -1,0 +1,40 @@
+name: fixture-template
+version: 1.0.0
+description: Tests template generation with Handlebars
+
+variables:
+  app_name:
+    type: string
+    default: MyApp
+  port:
+    type: number
+    default: 3000
+  debug:
+    type: boolean
+    default: false
+
+generates:
+  - path: config.json
+    template: templates/config.json.hbs
+
+  - path: README.md
+    template: templates/README.md.hbs
+
+tests:
+  - name: creates config.json
+    assert_file_exists: config.json
+  
+  - name: config has app name
+    assert_file_contains:
+      path: config.json
+      contains: "MyApp"
+  
+  - name: config has port
+    assert_file_contains:
+      path: config.json
+      contains: "3000"
+  
+  - name: README has project name
+    assert_file_contains:
+      path: README.md
+      contains: "test-workspace"

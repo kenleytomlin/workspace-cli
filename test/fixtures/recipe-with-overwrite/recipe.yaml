@@ -1,0 +1,38 @@
+name: fixture-overwrite
+version: 1.0.0
+description: Tests overwrite behavior
+
+generates:
+  # Create initial file
+  - path: keep-me.txt
+    content: "Original content"
+
+  # Try to overwrite with overwrite: false (should NOT replace)
+  - path: keep-me.txt
+    content: "Replaced content"
+    overwrite: false
+
+  # Create another file that CAN be overwritten
+  - path: replace-me.txt
+    content: "First version"
+
+  - path: replace-me.txt
+    content: "Second version"
+    overwrite: true
+
+tests:
+  - name: keep-me.txt exists
+    assert_file_exists: keep-me.txt
+
+  - name: keep-me.txt has original content (not overwritten)
+    assert_file_contains:
+      path: keep-me.txt
+      contains: "Original content"
+
+  - name: replace-me.txt exists
+    assert_file_exists: replace-me.txt
+
+  - name: replace-me.txt has second version (overwritten)
+    assert_file_contains:
+      path: replace-me.txt
+      contains: "Second version"

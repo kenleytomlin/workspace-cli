@@ -29,6 +29,9 @@ jobs:
       
       - name: Test all recipes
         run: bun run test:recipes
+      
+      - name: Test all fixtures
+        run: bun run test:fixtures
 
   build:
     runs-on: ubuntu-latest

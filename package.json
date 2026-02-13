@@ -22,7 +22,8 @@
     "test": "bun test src/__tests__/config.test.ts src/__tests__/executor.test.ts src/__tests__/recipes.test.ts src/__tests__/registry.test.ts",
     "test:integration": "bun test src/__tests__/integration.test.ts",
     "test:recipes": "bun scripts/test-recipes.ts",
-    "test:all": "bun test && bun run test:integration && bun run test:recipes",
+    "test:fixtures": "bun scripts/test-fixtures.ts",
+    "test:all": "bun test && bun run test:integration && bun run test:recipes && bun run test:fixtures",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

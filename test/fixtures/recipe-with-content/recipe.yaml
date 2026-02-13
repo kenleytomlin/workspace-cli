@@ -1,0 +1,36 @@
+name: fixture-content
+version: 1.0.0
+description: Tests content generation
+
+generates:
+  - path: simple.txt
+    content: "Hello, World!"
+  
+  - path: multiline.txt
+    content: |
+      Line 1
+      Line 2
+      Line 3
+
+  - path: nested/deep/file.txt
+    content: "Nested content"
+
+tests:
+  - name: creates simple.txt
+    assert_file_exists: simple.txt
+  
+  - name: simple.txt has correct content
+    assert_file_contains:
+      path: simple.txt
+      contains: "Hello, World!"
+  
+  - name: creates multiline.txt
+    assert_file_exists: multiline.txt
+  
+  - name: multiline has all lines
+    assert_file_contains:
+      path: multiline.txt
+      contains: "Line 2"
+  
+  - name: creates nested file
+    assert_file_exists: nested/deep/file.txt

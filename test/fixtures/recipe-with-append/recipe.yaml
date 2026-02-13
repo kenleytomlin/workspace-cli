@@ -1,0 +1,42 @@
+name: fixture-append
+version: 1.0.0
+description: Tests append generation mode
+
+generates:
+  # Create base file
+  - path: .gitignore
+    content: |
+      # Base ignores
+      .DS_Store
+
+  # Append to it
+  - path: .gitignore
+    append: |
+      
+      # Node
+      node_modules/
+      
+  # Append more
+  - path: .gitignore
+    append: |
+      # Build
+      dist/
+
+tests:
+  - name: .gitignore exists
+    assert_file_exists: .gitignore
+
+  - name: has base content
+    assert_file_contains:
+      path: .gitignore
+      contains: ".DS_Store"
+
+  - name: has first append
+    assert_file_contains:
+      path: .gitignore
+      contains: "node_modules/"
+
+  - name: has second append
+    assert_file_contains:
+      path: .gitignore
+      contains: "dist/"

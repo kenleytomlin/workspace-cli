@@ -1,0 +1,28 @@
+name: fixture-dependent
+version: 1.0.0
+description: Recipe that depends on base recipe
+
+requires:
+  - fixture-base
+
+generates:
+  - path: dependent.txt
+    content: "Dependent recipe applied"
+
+  - path: package.json
+    merge:
+      scripts:
+        start: "node index.js"
+
+tests:
+  - name: dependent.txt exists
+    assert_file_exists: dependent.txt
+
+  # Note: base.txt won't exist in isolated test (workspace test doesn't resolve deps)
+  # Dependency resolution is tested in integration tests
+
+  - name: package.json has merged scripts
+    assert_json_field:
+      path: package.json
+      field: scripts.start
+      equals: "node index.js"

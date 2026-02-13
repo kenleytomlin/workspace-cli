@@ -1,0 +1,21 @@
+name: fixture-scope-workspace
+version: 1.0.0
+description: Tests workspace-level scope (applies to root)
+
+scope: workspace
+
+generates:
+  - path: workspace-root.txt
+    content: "This should be at workspace root, not worktree"
+
+  - path: .env.template
+    content: |
+      # Shared environment template
+      DATABASE_URL=
+
+tests:
+  - name: workspace-root.txt exists
+    assert_file_exists: workspace-root.txt
+
+  - name: .env.template exists
+    assert_file_exists: .env.template

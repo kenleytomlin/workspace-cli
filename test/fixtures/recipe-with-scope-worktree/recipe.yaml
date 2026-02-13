@@ -1,0 +1,20 @@
+name: fixture-scope-worktree
+version: 1.0.0
+description: Tests worktree-level scope (applies to current worktree)
+
+scope: worktree
+
+generates:
+  - path: worktree-only.txt
+    content: "This should be in the worktree only"
+
+  - path: src/index.ts
+    content: |
+      console.log("Hello from worktree");
+
+tests:
+  - name: worktree-only.txt exists
+    assert_file_exists: worktree-only.txt
+
+  - name: src/index.ts exists
+    assert_file_exists: src/index.ts

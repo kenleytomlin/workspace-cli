@@ -1,0 +1,45 @@
+name: fixture-merge
+version: 1.0.0
+description: Tests JSON merge generation
+
+generates:
+  # First, create base package.json
+  - path: package.json
+    content: |
+      {
+        "name": "test-package",
+        "version": "1.0.0",
+        "dependencies": {}
+      }
+
+  # Then merge into it
+  - path: package.json
+    merge:
+      scripts:
+        build: "tsc"
+        test: "vitest"
+      devDependencies:
+        typescript: "^5.0.0"
+        vitest: "^2.0.0"
+
+tests:
+  - name: package.json exists
+    assert_file_exists: package.json
+
+  - name: original fields preserved
+    assert_json_field:
+      path: package.json
+      field: name
+      equals: "test-package"
+
+  - name: scripts merged
+    assert_json_field:
+      path: package.json
+      field: scripts.build
+      equals: "tsc"
+
+  - name: devDependencies merged
+    assert_json_field:
+      path: package.json
+      field: devDependencies.typescript
+      equals: "^5.0.0"
