@@ -20,6 +20,7 @@ const CLAUDE_SETTINGS = {
       "Bash(head:*)",
       "Bash(tail:*)",
       "Bash(echo:*)",
+      "Bash(mkdir:*)",
       // Web access
       "WebSearch",
       "WebFetch",

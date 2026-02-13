@@ -111,6 +111,7 @@ async function worktreeAdd(name: string | undefined, options: WorktreeOptions): 
         "Bash(head:*)",
         "Bash(tail:*)",
         "Bash(echo:*)",
+        "Bash(mkdir:*)",
         "WebSearch",
         "WebFetch",
       ],
