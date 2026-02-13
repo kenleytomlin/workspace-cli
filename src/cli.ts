@@ -4,6 +4,8 @@ import { parseArgs } from "util";
 import chalk from "chalk";
 
 import { init } from "./commands/init";
+import { clone } from "./commands/clone";
+import { adopt } from "./commands/adopt";
 import { add } from "./commands/add";
 import { apply } from "./commands/apply";
 import { validate } from "./commands/validate";
@@ -22,6 +24,8 @@ ${chalk.dim("Usage:")}
 
 ${chalk.dim("Commands:")}
   ${chalk.cyan("init")} <name> [--stack <stack>]    Create a new workspace
+  ${chalk.cyan("clone")} <url> [name] [--recipes]   Clone a repo as workspace
+  ${chalk.cyan("adopt")} [--recipes]                Convert current repo to workspace
   ${chalk.cyan("add")} <recipe>                     Add a recipe to the workspace
   ${chalk.cyan("apply")}                            Apply all pending recipes
   ${chalk.cyan("validate")}                         Validate workspace configuration
@@ -40,6 +44,8 @@ ${chalk.dim("Options:")}
 
 ${chalk.dim("Examples:")}
   workspace init my-project --stack fullstack-ts
+  workspace clone https://github.com/user/repo --recipes agents-md
+  workspace adopt --recipes bun-runtime,typescript-strict
   workspace add vitest-testing
   workspace apply
   workspace worktree add agent-1
@@ -53,6 +59,7 @@ async function main() {
       version: { type: "boolean", short: "v" },
       verbose: { type: "boolean" },
       stack: { type: "string" },
+      recipes: { type: "string" },
       base: { type: "string" },
       branch: { type: "string" },
       "no-deps": { type: "boolean" },
@@ -81,6 +88,24 @@ async function main() {
     switch (command) {
       case "init":
         await init(rest[0], { stack: values.stack, ...ctx });
+        break;
+
+      case "clone":
+        if (!rest[0]) {
+          console.error(chalk.red("Error: Repository URL required"));
+          console.log("Usage: workspace clone <url> [name] [--recipes ...]");
+          process.exit(1);
+        }
+        // rest[1] may be custom name or undefined
+        if (rest[1]) {
+          await clone(rest[0], rest[1], { recipes: values.recipes, ...ctx });
+        } else {
+          await clone(rest[0], { recipes: values.recipes, ...ctx });
+        }
+        break;
+
+      case "adopt":
+        await adopt({ recipes: values.recipes, ...ctx });
         break;
 
       case "add":
