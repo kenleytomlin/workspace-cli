@@ -4,7 +4,7 @@
 class Workspace < Formula
   desc "Buildpacks for agent-friendly git repos"
   homepage "https://github.com/kenleytomlin/workspace-cli"
-  version "0.1.0"
+  version "0.3.1"
   license "MIT"
 
   on_macos do
