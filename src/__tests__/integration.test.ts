@@ -325,6 +325,67 @@ describe("workspace adopt", () => {
     expect(content).toContain("bun-runtime");
   });
 
+  it("adopts existing bare-worktree layout", async () => {
+    // Simulate a repo already converted to bare-worktree layout
+    // (e.g., by scripts or a previous manual setup)
+    const repoDir = join(tempDir, "already-bare");
+    await Bun.spawn(["mkdir", "-p", repoDir]).exited;
+
+    // Create a standard repo first
+    await Bun.spawn(["git", "init"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.email", "test@test.com"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "config", "user.name", "Test"], { cwd: repoDir }).exited;
+    await Bun.write(join(repoDir, "README.md"), "# Already Bare");
+    await Bun.spawn(["git", "add", "-A"], { cwd: repoDir }).exited;
+    await Bun.spawn(["git", "commit", "-m", "initial"], { cwd: repoDir }).exited;
+
+    // Detect current branch name (may be "master" or "main" depending on git config)
+    const branchProc = Bun.spawn(
+      ["git", "branch", "--show-current"],
+      { cwd: repoDir, stdout: "pipe" }
+    );
+    const currentBranch = (await new Response(branchProc.stdout).text()).trim();
+
+    // Manually convert to bare-worktree layout (simulating what old scripts did)
+    const bareDir = join(repoDir, ".bare-temp");
+    await Bun.spawn(
+      ["git", "clone", "--bare", join(repoDir, ".git"), bareDir],
+      { stdout: "pipe", stderr: "pipe" }
+    ).exited;
+    await Bun.spawn(["rm", "-rf", join(repoDir, ".git")]).exited;
+    await Bun.spawn(["rm", "-f", join(repoDir, "README.md")]).exited;
+    await Bun.spawn(["mv", bareDir, join(repoDir, ".bare")]).exited;
+    await Bun.write(join(repoDir, ".git"), "gitdir: .bare\n");
+    await Bun.spawn(
+      ["git", "config", "remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*"],
+      { cwd: repoDir }
+    ).exited;
+    await Bun.spawn(
+      ["git", "worktree", "add", "main", currentBranch],
+      { cwd: repoDir, stdout: "pipe", stderr: "pipe" }
+    ).exited;
+
+    // Verify pre-condition: .git is a file, .bare/ exists, main/ exists
+    const gitStat = Bun.spawn(["test", "-f", join(repoDir, ".git")]);
+    expect(await gitStat.exited).toBe(0);
+
+    // Now run adopt — it should succeed without re-converting
+    const result = await runCli(["adopt"], repoDir);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("bare-worktree");
+    expect(result.stdout).toContain("skipping conversion");
+
+    // .workspace/ config should be created
+    expect(await dirExists(join(repoDir, ".workspace"))).toBe(true);
+    const configPath = join(repoDir, ".workspace", "config.yaml");
+    expect(await Bun.file(configPath).exists()).toBe(true);
+    const content = await Bun.file(configPath).text();
+    expect(content).toContain("name: already-bare");
+
+    // main/ should still work
+    expect(await Bun.file(join(repoDir, "main", "README.md")).exists()).toBe(true);
+  });
+
   it("fails on non-git directory", async () => {
     const nonGitDir = join(tempDir, "not-a-repo");
     await Bun.spawn(["mkdir", "-p", nonGitDir]).exited;
