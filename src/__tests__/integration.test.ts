@@ -82,9 +82,9 @@ describe("CLI Integration", () => {
       const content = await Bun.file(settingsPath).text();
       const settings = JSON.parse(content);
       
-      // Should have permissive defaults
+      // Should have scoped defaults
       expect(settings.permissions).toBeDefined();
-      expect(settings.permissions.allow).toContain("Bash(*)");
+      expect(settings.permissions.allow).toContain("Bash(git:*)");
     });
   });
 
@@ -290,7 +290,7 @@ describe("workspace clone", () => {
     
     const content = await Bun.file(settingsPath).text();
     const settings = JSON.parse(content);
-    expect(settings.permissions.allow).toContain("Bash(*)");
+    expect(settings.permissions.allow).toContain("Bash(git:*)");
   });
 });
 
@@ -444,7 +444,7 @@ describe("workspace adopt", () => {
     
     const content = await Bun.file(settingsPath).text();
     const settings = JSON.parse(content);
-    expect(settings.permissions.allow).toContain("Bash(*)");
+    expect(settings.permissions.allow).toContain("Bash(git:*)");
   });
 
   it("fails on uncommitted changes", async () => {

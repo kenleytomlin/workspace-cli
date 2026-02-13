@@ -1,24 +1,31 @@
 import { join } from "path";
 
 /**
- * Default Claude Code settings with permissive defaults.
- * These allow the agent to work without constant permission prompts.
+ * Default Claude Code settings with scoped defaults.
+ * Allows common read/edit/search operations without constant permission prompts
+ * while keeping write and arbitrary shell access gated.
  */
 const CLAUDE_SETTINGS = {
   permissions: {
     allow: [
-      // File operations
+      // File operations (read + edit, no blanket write)
       "Read(*)",
       "Edit(*)",
-      "Write(*)",
-      // All shell commands
-      "Bash(*)",
+      // Scoped shell commands
+      "Bash(grep:*)",
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(git:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(echo:*)",
       // Web access
       "WebSearch",
-      "WebFetch"
+      "WebFetch",
     ],
-    deny: []
-  }
+    deny: [],
+  },
 };
 
 /**
